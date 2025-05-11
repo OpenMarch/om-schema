@@ -1,49 +1,52 @@
-import type { Database } from "bun:sqlite";
-import { Glob } from "bun";
+import { Database } from "bun:sqlite";
+import { getMigrations, getVersion } from "./migrations";
 
-export interface Migration {
-    version: number;
-    description: string;
-    migrate: (db: Database) => Promise<void> | void;
+
+
+export interface MigrationOptions {
+    dbPath: string;
+    dryRun?: boolean;
 }
 
-// Discover all migration files matching the pattern
-const glob = new Glob("versions/*/migration.ts");
-const migrationModules = []
-for await (const path of glob.scan(".")) {
-    const module = await import(path);
-    migrationModules.push(module);
+
+export async function InitDatabase(db: Database) {
+    // Find the latest version
+
 }
 
-const migrations: { version: number; description: string; migrate: (db: Database) => Promise<void> }[] = [];
+export async function runMigrations(options: MigrationOptions): Promise<void> {
+    const {
+        dbPath,
+        dryRun = false
+    } = options;
 
-for (const path in migrationModules) {
-    const mod = await migrationModules[path]();
-    migrations.push(mod.default);
-}
+    const db = new Database(dbPath);
+    const currentVersion = getVersion(db);
 
-// Sort by version
-migrations.sort((a, b) => a.version - b.version);
-
-// Setup DB and migration tracking table
-const db = new Database("openmarch.db");
-
-db.exec(`
-  CREATE TABLE IF NOT EXISTS migrations (
-    version INTEGER PRIMARY KEY,
-    applied_at TEXT NOT NULL DEFAULT (datetime('now'))
-  );
-`);
-
-const appliedVersions = db
-    .query("SELECT version FROM migrations")
-    .all()
-    .map((r) => r.version);
-
-for (const migration of migrations) {
-    if (!appliedVersions.includes(migration.version)) {
-        console.log(`Applying v${migration.version}: ${migration.description}`);
-        await migration.migrate(db);
-        db.run("INSERT INTO migrations (version) VALUES (?)", migration.version);
+    // Discover all migration files matching the pattern
+    const migrations = await getMigrations("versions/*/migration.ts");
+    if (!migrations.length) {
+        console.error("No migrations found");
+        return;
     }
+    const latestVersion = migrations[migrations.length - 1]!.version;
+
+    console.log(`Current version: ${currentVersion}, Latest version: ${latestVersion}`);
+
+    for (const migration of migrations) {
+        if (currentVersion < migration.version) {
+            console.log(`Applying v${migration.version}`);
+
+            if (!dryRun) {
+                await migration.migrate(db);
+            } else {
+                console.log(`[DRY RUN] Would apply migration v${migration.version}`);
+            }
+        }
+    }
+
+
+    console.log(`Migration complete. Database: ${dbPath}`);
+    return;
 }
+

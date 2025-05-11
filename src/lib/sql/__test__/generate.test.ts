@@ -123,7 +123,7 @@ describe("createTableSQL with additional constraints", () => {
             "CHECK (x >= 0 AND y >= 0)"
         ];
 
-        const actual = createTableSQL({ tableName: "coords", columns: cols, additionalConstraints: constraints });
+        const actual = createTableSQL({ tableName: "coords", columns: cols, constraints: constraints });
         const expected = `CREATE TABLE IF NOT EXISTS "coords" ( "x" REAL, "y" REAL,
   "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -145,7 +145,7 @@ describe("createTableSQL with additional constraints", () => {
             "CHECK (x BETWEEN 0 AND 100)"
         ];
 
-        const actual = createTableSQL({ tableName: "coords", columns: cols, additionalConstraints: constraints });
+        const actual = createTableSQL({ tableName: "coords", columns: cols, constraints: constraints });
         const expected = `CREATE TABLE IF NOT EXISTS "coords" (
     "x" REAL,
     "y" REAL,
@@ -185,7 +185,7 @@ describe("createTableSQL with additional constraints", () => {
             "PRIMARY KEY (project_id, user_id)"
         ];
 
-        const actual = createTableSQL({ tableName: "project_users", columns: cols, additionalConstraints: constraints });
+        const actual = createTableSQL({ tableName: "project_users", columns: cols, constraints: constraints });
         const expected = `CREATE TABLE IF NOT EXISTS "project_users" (
     "project_id" INTEGER,
     "user_id" INTEGER,

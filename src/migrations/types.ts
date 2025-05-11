@@ -21,6 +21,11 @@ export interface DatabaseVersionSchema {
     migrationFunction: (db: Database) => boolean;
 }
 
+/**
+ * Defines the schema for a table in a database version.
+ *
+ * Includes details about table creation, lifecycle hooks, and history tracking.
+ */
 export interface TableSchema {
     /**
      * SQL query to create the table
@@ -31,13 +36,13 @@ export interface TableSchema {
      *
      * @returns true if successful, false to abort creation
      */
-    preCreate?: (db: Database) => boolean,
+    preCreate?: (db: Database) => void,
     /**
      * Function to run after the table is created.
      *
      * @returns true if successful, false to abort creation
      */
-    postCreate?: (db: Database) => boolean,
+    postCreate?: (db: Database) => void,
     /**
      * Whether to use the history system for this table.
      */

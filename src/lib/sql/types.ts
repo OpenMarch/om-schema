@@ -29,5 +29,5 @@ export interface ColumnDefinition {
     };
 }
 
-export type NewTableArgs = { tableName: string; columns: ColumnDefinition[]; additionalConstraints?: string[]; }
+export type NewTableArgs = { tableName: string; columns: ColumnDefinition[]; constraints?: string[]; }
 

@@ -36,10 +36,10 @@ export function columnToSQL(col: ColumnDefinition): string {
  *
  * @param tableName - The name of the table to be created
  * @param columns - An array of column definitions specifying the table's structure
- * @param additionalConstraints - Optional array of additional SQL constraints to add to the table
+ * @param constraints - Optional array of additional SQL constraints to add to the table
  * @returns A complete SQL CREATE TABLE statement as a string
  */
-export function createTableSQL({ tableName, columns, additionalConstraints = [] }: NewTableArgs): string {
+export function createTableSQL({ tableName, columns, constraints = [] }: NewTableArgs): string {
     const columnNames = columns.map(col => col.name);
     const cols = [...columns];
     if (!columnNames.includes("created_at")) {
@@ -49,5 +49,5 @@ export function createTableSQL({ tableName, columns, additionalConstraints = [] 
         cols.push({ name: "updated_at", type: "TEXT" });
     }
     const columnSQL = cols.map(columnToSQL).join(",\n  ");
-    return `CREATE TABLE IF NOT EXISTS "${tableName}" (\n  ${columnSQL}${additionalConstraints.length > 0 ? `,\n  ${additionalConstraints.join(",\n  ")}` : ""}\n);`;
+    return `CREATE TABLE IF NOT EXISTS "${tableName}" (\n  ${columnSQL}${constraints.length > 0 ? `,\n  ${constraints.join(",\n  ")}` : ""}\n);`;
 }
