@@ -1,4 +1,5 @@
-import { describe, expect, it, mock, spyOn, afterEach, beforeEach, } from "bun:test";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { describe, expect, it, spyOn, afterEach, beforeEach } from "bun:test";
 import { Database } from "bun:sqlite";
 import {
     calculateHistorySize,
@@ -204,7 +205,7 @@ describe("History Tables and Triggers", () => {
                     ]);
 
                     // Execute the undo action
-                    let response = performUndo(db);
+                    const response = performUndo(db);
                     expect(response.success).toBe(true);
                     expect(response.sqlStatements).toEqual([
                         'DELETE FROM "test_table" WHERE rowid=6',
@@ -244,8 +245,8 @@ describe("History Tables and Triggers", () => {
                                     "SELECT test_value FROM test_table WHERE id = 1;",
                                 )
                                 .get() as {
-                                    test_value: string;
-                                }
+                                test_value: string;
+                            }
                         ).test_value;
 
                     // Create undo triggers for the test table
@@ -378,7 +379,7 @@ describe("History Tables and Triggers", () => {
                     expect(allRows()).toEqual(expectedValues);
 
                     // Execute the undo action
-                    let response = performUndo(db);
+                    const response = performUndo(db);
                     expect(response.success).toBe(true);
                     expect(response.sqlStatements).toEqual([
                         'UPDATE "test_table" SET "id"=2,"test_value"=\'g1-1 - updated value\' WHERE rowid=2',
@@ -455,10 +456,10 @@ describe("History Tables and Triggers", () => {
                                         "SELECT test_value FROM test_table WHERE id = 1;",
                                     )
                                     .get() as {
-                                        test_value: string;
-                                    }
+                                    test_value: string;
+                                }
                             ).test_value;
-                        } catch (e) {
+                        } catch {
                             return undefined;
                         }
                     };
@@ -544,7 +545,7 @@ describe("History Tables and Triggers", () => {
                     expect(allRows()).toEqual([]);
 
                     // Execute the undo action
-                    let response = performUndo(db);
+                    const response = performUndo(db);
                     expect(response.success).toBe(true);
                     expect(response.sqlStatements).toEqual([
                         'INSERT INTO "test_table" ("id","test_value") VALUES (6,\'g3-2\')',
@@ -838,8 +839,8 @@ describe("History Tables and Triggers", () => {
                                     "SELECT test_value FROM test_table WHERE id = 1;",
                                 )
                                 .get() as {
-                                    test_value: string;
-                                }
+                                test_value: string;
+                            }
                         ).test_value;
 
                     // Create undo triggers for the test table
@@ -1103,7 +1104,7 @@ describe("History Tables and Triggers", () => {
                         db
                             .prepare("SELECT * FROM test_table ORDER BY id")
                             .all() as Row[];
-                    let expectedValues: Row[] = [
+                    const expectedValues: Row[] = [
                         { id: 1, test_value: "g1-0 - second updated value" },
                         { id: 2, test_value: "g1-1 - second updated value" },
                         { id: 3, test_value: "g2-0 - updated value" },
@@ -1144,10 +1145,10 @@ describe("History Tables and Triggers", () => {
                                         "SELECT test_value FROM test_table WHERE id = 1;",
                                     )
                                     .get() as {
-                                        test_value: string;
-                                    }
+                                    test_value: string;
+                                }
                             ).test_value;
-                        } catch (e) {
+                        } catch {
                             return undefined;
                         }
                     };
@@ -1425,7 +1426,7 @@ describe("History Tables and Triggers", () => {
             performUndo(db);
             performUndo(db);
             performUndo(db);
-            let users = db.prepare("SELECT * FROM users").all();
+            const users = db.prepare("SELECT * FROM users").all();
             expect(users.length).toBe(0);
         });
 
@@ -1458,7 +1459,7 @@ describe("History Tables and Triggers", () => {
 
             // Undo the age update and verify the value
             performUndo(db);
-            let result = db
+            const result = db
                 .prepare("SELECT age FROM users WHERE name = ?")
                 .get("Alice") as { age: number };
             expect(result.age).toBe(28);
@@ -1496,7 +1497,7 @@ describe("History Tables and Triggers", () => {
             incrementUndoGroup(db);
 
             // Perform undo of orders, then insert more data
-            let expectedOrders = db.prepare("SELECT * FROM orders").all();
+            const expectedOrders = db.prepare("SELECT * FROM orders").all();
             performUndo(db);
             let currentOrders = db.prepare("SELECT * FROM orders").all();
             expect(currentOrders.length).toBe(0);
@@ -1514,7 +1515,7 @@ describe("History Tables and Triggers", () => {
             performRedo(db);
             performUndo(db);
 
-            let users = db.prepare("SELECT * FROM users").all();
+            const users = db.prepare("SELECT * FROM users").all();
             expect(users.length).toBe(2); // Should contain only 'Chris' and 'Diana'
 
             currentOrders = db.prepare("SELECT * FROM orders").all();
@@ -1553,13 +1554,13 @@ describe("History Tables and Triggers", () => {
             performUndo(db);
             performUndo(db);
 
-            let user = db
+            const user = db
                 .prepare("SELECT * FROM users WHERE name = ?")
                 .get("Frank") as any;
             expect(user.email).toBe("frank@example.com"); // Should be the original email
 
             performRedo(db);
-            let orders = db.prepare("SELECT * FROM orders").all();
+            const orders = db.prepare("SELECT * FROM orders").all();
             expect(orders.length).toBe(2); // Order should be restored
         });
     });
@@ -1852,7 +1853,7 @@ describe("History Tables and Triggers", () => {
 
             // Undo DELETE operations
             performUndo(db); // Undo the DELETE from special_characters_test
-            let specialResult = db
+            const specialResult = db
                 .prepare("SELECT * FROM special_characters_test")
                 .all();
             expect(specialResult.length).toBe(2); // Both rows should be back
@@ -1896,7 +1897,7 @@ describe("History Tables and Triggers", () => {
             incrementUndoGroup(db);
 
             // Perform undo/redo in random order
-            let response = performUndo(db); // Undo DELETE and update
+            const response = performUndo(db); // Undo DELETE and update
             expect(response.success).toBe(true);
             expect(response.error).toBeUndefined();
             expect(response.tableNames).toEqual(
@@ -1990,7 +1991,7 @@ describe("History Tables and Triggers", () => {
 
         // Mock console.log to avoid cluttering test output
         beforeEach(() => {
-            spyOn(console, "log").mockImplementation(() => { });
+            spyOn(console, "log").mockImplementation(() => {});
 
             // Create a new in-memory database for each test
             db = new Database(testDbPath);
@@ -2198,7 +2199,7 @@ describe("History Tables and Triggers", () => {
                 db.prepare(
                     "CREATE VIRTUAL TABLE IF NOT EXISTS dbstat USING dbstat",
                 ).run();
-            } catch (e) {
+            } catch {
                 console.log(
                     "dbstat not available, tests will use fallback methods",
                 );

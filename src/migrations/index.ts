@@ -30,7 +30,7 @@ export const IsVersion = (db: Database, version: number) => {
     console.log("------> END VERSION CHECK <------");
 
     return currentVersion === version;
-}
+};
 
 /**
  * Retrieves the current user version of the SQLite database.
@@ -47,7 +47,7 @@ export const getVersion = (database: Database): number => {
         throw new Error("Failed to get the version of the database.");
     }
     return response.user_version;
-}
+};
 
 /**
  * Discovers and validates migration files based on a specified pattern.
@@ -60,13 +60,13 @@ export const getVersion = (database: Database): number => {
  * validates the presence of schema and migrate files, and ensures
  * migration files have a valid default export function.
  */
-export async function getMigrations(pattern = "*/"): Promise<Migration[]> {
+export async function getMigrations(): Promise<Migration[]> {
     // Discover all migration files matching the pattern
-    const glob = new Glob(pattern);
+    const glob = new Glob("*/");
     const migrations: Migration[] = [];
     for await (const path of glob.scan(".")) {
         // Extract version number from folder name
-        const version = parseInt(path.split('/')[0]!);
+        const version = parseInt(path.split("/")[0]!);
         if (isNaN(version)) {
             throw new Error(`Invalid migration folder name: ${path}`);
         }
@@ -82,30 +82,43 @@ export async function getMigrations(pattern = "*/"): Promise<Migration[]> {
         // Validate that this function has a default export
         const migrate = await import(path + "/migrate.ts");
         if (migrate.default === undefined) {
-            throw new Error(`Migration file does not have a default export: ${path}`);
+            throw new Error(
+                `Migration file does not have a default export: ${path}`,
+            );
         }
         // Validate that the migration takes a database connection as an argument
         if (migrate.default.length !== 1) {
-            throw new Error(`Migration file does not have a single argument: ${path}`);
+            throw new Error(
+                `Migration file does not have a single argument: ${path}`,
+            );
         }
 
         const schemaSql = await Bun.file(path + "/schema.sql").text();
         migrations.push({
             version,
             schemaSql,
-            migrate: migrate.default
+            migrate: migrate.default,
         });
     }
 
     return migrations.sort((a, b) => a.version - b.version);
 }
 
-export default function initDatabase(db: Database, migration: Migration) {
-    const version = migration.version
-    console.log("Creating tables for version " + version.toString())
+/**
+ * Initializes the database with a specific migration's schema.
+ *
+ * @param db - The database connection to initialize
+ * @param migration - The migration containing the schema to apply
+ *
+ * Sets the database's user version to -1 before applying the schema,
+ * then executes the schema SQL, and finally sets the user version
+ * to the migration's version number.
+ */
+export function initDatabase(db: Database, migration: Migration) {
+    const version = migration.version;
+    console.log("Creating tables for version " + version.toString());
 
     db.exec("PRAGMA user_version = -1");
     db.prepare(migration.schemaSql).run();
     db.exec("PRAGMA user_version = " + version.toString());
-
 }

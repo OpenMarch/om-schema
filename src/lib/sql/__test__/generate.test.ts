@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test"
+import { describe, expect, it } from "bun:test";
 import { columnToSQL, createTableSQL } from "../generate";
 import type { ColumnDefinition } from "../types";
 
@@ -18,7 +18,9 @@ describe("columnToSQL", () => {
             unique: true,
             default: "guest",
         };
-        expect(columnToSQL(col)).toBe(`"username" TEXT NOT NULL UNIQUE DEFAULT 'guest'`);
+        expect(columnToSQL(col)).toBe(
+            `"username" TEXT NOT NULL UNIQUE DEFAULT 'guest'`,
+        );
     });
 
     it("handles boolean and number defaults", () => {
@@ -51,33 +53,60 @@ describe("columnToSQL", () => {
             },
         };
         expect(columnToSQL(col)).toBe(
-            `"user_id" INTEGER REFERENCES users(id) ON DELETE CASCADE`
+            `"user_id" INTEGER REFERENCES users(id) ON DELETE CASCADE`,
         );
     });
 
     it("adds DEFAULT CURRENT_TIMESTAMP for created_at and updated_at if no explicit default", () => {
-        const createdAtCol: ColumnDefinition = { name: "created_at", type: "TEXT" };
-        const updatedAtCol: ColumnDefinition = { name: "updated_at", type: "TEXT" };
-        expect(columnToSQL(createdAtCol)).toBe(`"created_at" TEXT DEFAULT CURRENT_TIMESTAMP`);
-        expect(columnToSQL(updatedAtCol)).toBe(`"updated_at" TEXT DEFAULT CURRENT_TIMESTAMP`);
+        const createdAtCol: ColumnDefinition = {
+            name: "created_at",
+            type: "TEXT",
+        };
+        const updatedAtCol: ColumnDefinition = {
+            name: "updated_at",
+            type: "TEXT",
+        };
+        expect(columnToSQL(createdAtCol)).toBe(
+            `"created_at" TEXT DEFAULT CURRENT_TIMESTAMP`,
+        );
+        expect(columnToSQL(updatedAtCol)).toBe(
+            `"updated_at" TEXT DEFAULT CURRENT_TIMESTAMP`,
+        );
     });
 
     it("does not override explicit default for created_at and updated_at", () => {
-        const createdAtCol: ColumnDefinition = { name: "created_at", type: "TEXT", default: "2023-01-01" };
-        const updatedAtCol: ColumnDefinition = { name: "updated_at", type: "TEXT", default: "2023-01-01" };
-        expect(columnToSQL(createdAtCol)).toBe(`"created_at" TEXT DEFAULT '2023-01-01'`);
-        expect(columnToSQL(updatedAtCol)).toBe(`"updated_at" TEXT DEFAULT '2023-01-01'`);
+        const createdAtCol: ColumnDefinition = {
+            name: "created_at",
+            type: "TEXT",
+            default: "2023-01-01",
+        };
+        const updatedAtCol: ColumnDefinition = {
+            name: "updated_at",
+            type: "TEXT",
+            default: "2023-01-01",
+        };
+        expect(columnToSQL(createdAtCol)).toBe(
+            `"created_at" TEXT DEFAULT '2023-01-01'`,
+        );
+        expect(columnToSQL(updatedAtCol)).toBe(
+            `"updated_at" TEXT DEFAULT '2023-01-01'`,
+        );
     });
 });
 
 describe("createTableSQL", () => {
     it("creates a table with multiple columns", () => {
         const cols: ColumnDefinition[] = [
-            { name: "id", type: "INTEGER", primaryKey: true, autoIncrement: true },
+            {
+                name: "id",
+                type: "INTEGER",
+                primaryKey: true,
+                autoIncrement: true,
+            },
             { name: "x", type: "REAL", notNull: true },
             { name: "y", type: "REAL", notNull: true },
             { name: "created_at", type: "TEXT" },
-            { name: "updated_at", type: "TEXT" }
+            { name: "updated_at", type: "TEXT" },
         ];
 
         const actual = createTableSQL({ tableName: "coords", columns: cols });
@@ -94,9 +123,13 @@ describe("createTableSQL", () => {
     it("includes references in full CREATE TABLE IF NOT EXISTS output", () => {
         const cols: ColumnDefinition[] = [
             { name: "id", type: "INTEGER", primaryKey: true },
-            { name: "page_id", type: "INTEGER", references: { table: "pages", column: "id" } },
+            {
+                name: "page_id",
+                type: "INTEGER",
+                references: { table: "pages", column: "id" },
+            },
             { name: "created_at", type: "TEXT" },
-            { name: "updated_at", type: "TEXT" }
+            { name: "updated_at", type: "TEXT" },
         ];
 
         const actual = createTableSQL({ tableName: "coords", columns: cols });
@@ -116,14 +149,16 @@ describe("createTableSQL with additional constraints", () => {
             { name: "x", type: "REAL" },
             { name: "y", type: "REAL" },
             { name: "created_at", type: "TEXT" },
-            { name: "updated_at", type: "TEXT" }
+            { name: "updated_at", type: "TEXT" },
         ];
 
-        const constraints = [
-            "CHECK (x >= 0 AND y >= 0)"
-        ];
+        const constraints = ["CHECK (x >= 0 AND y >= 0)"];
 
-        const actual = createTableSQL({ tableName: "coords", columns: cols, constraints: constraints });
+        const actual = createTableSQL({
+            tableName: "coords",
+            columns: cols,
+            constraints: constraints,
+        });
         const expected = `CREATE TABLE IF NOT EXISTS "coords" ( "x" REAL, "y" REAL,
   "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -137,15 +172,16 @@ describe("createTableSQL with additional constraints", () => {
             { name: "x", type: "REAL" },
             { name: "y", type: "REAL" },
             { name: "created_at", type: "TEXT" },
-            { name: "updated_at", type: "TEXT" }
+            { name: "updated_at", type: "TEXT" },
         ];
 
-        const constraints = [
-            "UNIQUE (x, y)",
-            "CHECK (x BETWEEN 0 AND 100)"
-        ];
+        const constraints = ["UNIQUE (x, y)", "CHECK (x BETWEEN 0 AND 100)"];
 
-        const actual = createTableSQL({ tableName: "coords", columns: cols, constraints: constraints });
+        const actual = createTableSQL({
+            tableName: "coords",
+            columns: cols,
+            constraints: constraints,
+        });
         const expected = `CREATE TABLE IF NOT EXISTS "coords" (
     "x" REAL,
     "y" REAL,
@@ -161,7 +197,7 @@ describe("createTableSQL with additional constraints", () => {
         const cols: ColumnDefinition[] = [
             { name: "id", type: "INTEGER", primaryKey: true },
             { name: "created_at", type: "TEXT" },
-            { name: "updated_at", type: "TEXT" }
+            { name: "updated_at", type: "TEXT" },
         ];
 
         const actual = createTableSQL({ tableName: "simple", columns: cols });
@@ -178,14 +214,16 @@ describe("createTableSQL with additional constraints", () => {
             { name: "project_id", type: "INTEGER" },
             { name: "user_id", type: "INTEGER" },
             { name: "created_at", type: "TEXT" },
-            { name: "updated_at", type: "TEXT" }
+            { name: "updated_at", type: "TEXT" },
         ];
 
-        const constraints = [
-            "PRIMARY KEY (project_id, user_id)"
-        ];
+        const constraints = ["PRIMARY KEY (project_id, user_id)"];
 
-        const actual = createTableSQL({ tableName: "project_users", columns: cols, constraints: constraints });
+        const actual = createTableSQL({
+            tableName: "project_users",
+            columns: cols,
+            constraints: constraints,
+        });
         const expected = `CREATE TABLE IF NOT EXISTS "project_users" (
     "project_id" INTEGER,
     "user_id" INTEGER,

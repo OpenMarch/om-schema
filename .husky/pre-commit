@@ -1,0 +1,8 @@
+# ~/.huskyrc
+# This should only print or be visible if the pre-commit hooks fail.
+echo "Error running pre-commit checks. Check the output of this command for more information."
+# Check if bun is installed
+bun --version || (echo "❌ Could not run lint-staged. Ensure bun is installed and in your PATH. Check the README for details" && exit 1)
+which bun
+bun run lint-staged || (echo "❌ Linting failed. Please fix the issues and try again." && exit 1)
+echo "✅ Pre-commit checks passed."

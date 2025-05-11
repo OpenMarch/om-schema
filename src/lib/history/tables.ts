@@ -4,7 +4,6 @@ export const UNDO_HISTORY_TABLE_NAME = "history_undo";
 export const REDO_HISTORY_TABLE_NAME = "history_redo";
 export const HISTORY_STATS_TABLE_NAME = "history_stats";
 
-
 /**
  * A row in the history stats table.
  */

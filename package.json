@@ -1,12 +1,23 @@
 {
-  "name": "om-schema",
-  "module": "index.ts",
-  "devDependencies": {
-    "@types/bun": "latest",
-    "eslint": "^9.26.0"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "type": "module"
+    "name": "om-schema",
+    "module": "index.ts",
+    "scripts": {
+        "lint": "eslint --fix .",
+        "format": "prettier --write .",
+        "prepare": "husky"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.26.0",
+        "@types/bun": "latest",
+        "eslint": "^9.26.0",
+        "globals": "^16.1.0",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.0.0",
+        "prettier": "^3.5.3",
+        "typescript-eslint": "^8.32.0"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
+    },
+    "type": "module"
 }

@@ -1,4 +1,14 @@
-import { afterEach, beforeEach, describe, expect, it, jest, mock } from "bun:test";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import {
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    jest,
+    mock,
+} from "bun:test";
 import * as DbActions from ".";
 import { createHistoryTables } from "../history/tables";
 import * as History from "../history";
@@ -50,10 +60,11 @@ describe("Database Actions", () => {
         removeTimestamps = true,
         removeId = true,
     }: {
-        item: Object;
+        item: object;
         removeTimestamps?: boolean;
         removeId?: boolean;
     }) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let newItem: any = { ...item };
         if (removeTimestamps) {
             const { created_at, updated_at, ...rest } = newItem;
@@ -63,7 +74,7 @@ describe("Database Actions", () => {
             const { id, ...rest } = newItem;
             newItem = { ...rest };
         }
-        return newItem as Object;
+        return newItem as object;
     };
 
     const mockTableName = "mockTable";
@@ -207,9 +218,9 @@ describe("Database Actions", () => {
             expect(result.error).toBeFalsy();
 
             // Expect the id to be auto-generated (1 and 2)
-            expect(result.data[0]!!.id).toBe(1);
-            expect(result.data[0]!!.name).toBe("jeff");
-            expect(result.data[0]!!.age).toBe(null);
+            expect(result.data[0]!.id).toBe(1);
+            expect(result.data[0]!.name).toBe("jeff");
+            expect(result.data[0]!.age).toBe(null);
             expect(result.data[1]!.id).toBe(2);
             expect(result.data[1]!.name).toBe("john");
             expect(result.data[1]!.age).toBe(12);
@@ -521,7 +532,10 @@ describe("Database Actions", () => {
                 throw new Error("result.data is undefined");
             expect(
                 removeMetadata({ item: result.data, removeId: false }),
-            ).toEqual({ ...items[1], id: 2 });
+            ).toEqual({
+                ...items[1],
+                id: 2,
+            });
         });
 
         it("should return an error if the item does not exist", () => {
@@ -707,7 +721,10 @@ describe("Database Actions", () => {
             expect(updatedAtMs).toBeGreaterThanOrEqual(before);
             expect(updatedAtMs).toBeLessThanOrEqual(after);
             expect(
-                removeMetadata({ item: updateResult.data[0]!, removeId: false }),
+                removeMetadata({
+                    item: updateResult.data[0]!,
+                    removeId: false,
+                }),
             ).toEqual({
                 ...updatedItem,
                 age: null,
@@ -830,6 +847,7 @@ describe("Database Actions", () => {
                     (item) => item.id === updatedItem.id,
                 );
                 expect(updatedItem.created_at).toEqual(
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
                     originalItem?.created_at!,
                 );
                 // Sleep for 10ms to ensure the updated_at field is different

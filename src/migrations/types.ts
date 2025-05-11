@@ -1,5 +1,5 @@
-import type { NewTableArgs } from "../lib/sql/types"
-import { Database } from "bun:sqlite"
+import type { NewTableArgs } from "../lib/sql/types";
+import { Database } from "bun:sqlite";
 
 /**
  * Represents the schema for a database version, including its version number, description, and table models.
@@ -30,22 +30,21 @@ export interface TableSchema {
     /**
      * SQL query to create the table
      */
-    newTableArgs: NewTableArgs,
+    newTableArgs: NewTableArgs;
     /**
      * Function to run before the table is created.
      *
      * @returns true if successful, false to abort creation
      */
-    preCreate?: (db: Database) => void,
+    preCreate?: (db: Database) => void;
     /**
      * Function to run after the table is created.
      *
      * @returns true if successful, false to abort creation
      */
-    postCreate?: (db: Database) => void,
+    postCreate?: (db: Database) => void;
     /**
      * Whether to use the history system for this table.
      */
-    useHistory: boolean
-
+    useHistory: boolean;
 }

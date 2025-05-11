@@ -15,14 +15,17 @@ export function columnToSQL(col: ColumnDefinition): string {
     if (col.unique) parts.push("UNIQUE");
 
     if (col.default !== undefined) {
-        const val = typeof col.default === "string" ? `'${col.default}'` : col.default;
+        const val =
+            typeof col.default === "string" ? `'${col.default}'` : col.default;
         parts.push(`DEFAULT ${val}`);
-    } else if ((col.name === "created_at" || col.name === "updated_at")) {
+    } else if (col.name === "created_at" || col.name === "updated_at") {
         parts.push("DEFAULT CURRENT_TIMESTAMP");
     }
 
     if (col.references) {
-        parts.push(`REFERENCES ${col.references.table}(${col.references.column})`);
+        parts.push(
+            `REFERENCES ${col.references.table}(${col.references.column})`,
+        );
         if (col.references.onDelete) {
             parts.push(`ON DELETE ${col.references.onDelete}`);
         }
@@ -39,8 +42,12 @@ export function columnToSQL(col: ColumnDefinition): string {
  * @param constraints - Optional array of additional SQL constraints to add to the table
  * @returns A complete SQL CREATE TABLE statement as a string
  */
-export function createTableSQL({ tableName, columns, constraints = [] }: NewTableArgs): string {
-    const columnNames = columns.map(col => col.name);
+export function createTableSQL({
+    tableName,
+    columns,
+    constraints = [],
+}: NewTableArgs): string {
+    const columnNames = columns.map((col) => col.name);
     const cols = [...columns];
     if (!columnNames.includes("created_at")) {
         cols.push({ name: "created_at", type: "TEXT" });

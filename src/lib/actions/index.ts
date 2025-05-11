@@ -1,6 +1,11 @@
-import { Database } from "bun:sqlite"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { Database } from "bun:sqlite";
 import * as History from "../history";
-import { UNDO_HISTORY_TABLE_NAME, HISTORY_STATS_TABLE_NAME } from "../history/tables";
+import {
+    UNDO_HISTORY_TABLE_NAME,
+    HISTORY_STATS_TABLE_NAME,
+} from "../history/tables";
 
 /**
  * Response from the database
@@ -143,7 +148,8 @@ export function getItemsByColValue<DatabaseItemType>({
         condition = `"${col}" = '${value}'`;
     } else {
         condition = `"${col}" = ${value}`;
-    } try {
+    }
+    try {
         const stmt = db.prepare(
             `SELECT * FROM ${tableName} WHERE ${condition}`,
         );
@@ -237,7 +243,7 @@ export function getAllItems<DatabaseItemType>({
  * @param args The arguments to build the insert query
  * @returns String with the query
  */
-function insertClause<NewItemArgs extends Object>(args: NewItemArgs) {
+function insertClause<NewItemArgs extends object>(args: NewItemArgs) {
     const keys = Object.keys(args);
     keys.sort();
     const columns = keys.join(", ");
@@ -254,7 +260,7 @@ function insertClause<NewItemArgs extends Object>(args: NewItemArgs) {
  * @param functionName The name of the function being called, default is "createItems"
  * @returns The id of the inserted item
  */
-export function createItems<DatabaseItemType, NewItemArgs extends Object>({
+export function createItems<DatabaseItemType, NewItemArgs extends object>({
     db,
     items,
     tableName,
@@ -298,12 +304,13 @@ export function createItems<DatabaseItemType, NewItemArgs extends Object>({
             // Remove the id from the new item if it exists
             let itemToInsert = item;
             if (Object.keys(item).includes("id")) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { id, ...rest } = item as any;
                 itemToInsert = rest;
             }
 
             const createdAt = new Date().toISOString();
-            let newItem = itemToInsert as any;
+            const newItem = itemToInsert as any;
             if (columns.has("created_at")) newItem.created_at = createdAt;
             if (columns.has("updated_at")) newItem.updated_at = createdAt;
 
@@ -406,9 +413,7 @@ export function updateItems<
 
     // Verify all of the items exist before updating any of them
     for (const id of ids) {
-        if (
-            !getItem<DatabaseItemType>({ id, db, tableName }).data
-        ) {
+        if (!getItem<DatabaseItemType>({ id, db, tableName }).data) {
             notFoundIds.push(id);
         }
     }
@@ -445,7 +450,7 @@ export function updateItems<
         for (const oldItem of items) {
             const item = { ...oldItem }; // Copy the old item as to not modify the original reference
             const updatedAt = new Date().toISOString();
-            let updatedItem: any = item;
+            const updatedItem: any = item;
             if (columns.has("updated_at")) updatedItem.updated_at = updatedAt;
 
             // remove the id from the updated item
